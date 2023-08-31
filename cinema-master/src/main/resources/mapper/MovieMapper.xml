@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zrkworld.cinema.mapper.MovieMapper" >
+  <resultMap id="BaseResultMap" type="com.zrkworld.cinema.pojo.Movie" >
+    <id column="movieid" property="movieId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="INTEGER" />
+    <result column="integral" property="integral" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <insert id="insertMovie" parameterType="com.zrkworld.cinema.pojo.Movie">
+        insert into movie (name, price,
+      integral, time)
+    values (#{name,jdbcType=VARCHAR}, #{price,jdbcType=INTEGER},
+      #{integral,jdbcType=INTEGER}, now())
+  </insert>
+  <select id="selectAllMovie" resultType="com.zrkworld.cinema.pojo.Movie">
+    select movieid,name,price,integral,DATE_FORMAT(time,'%Y-%m-%d %T') as time
+    from movie
+    order by time desc
+  </select>
+
+  <select id="selectMovieCount" resultType="LONG">
+    select count(*)
+    from movie
+  </select>
+
+  <delete id="deleteMovieById" parameterType="String">
+    delete from movie
+    where movieid = #{movieId}
+  </delete>
+
+  <update id="updateMovieById" parameterType="com.zrkworld.cinema.pojo.Movie">
+    update movie
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        price = #{price,jdbcType=INTEGER},
+      </if>
+      <if test="integral != null" >
+        integral = #{integral,jdbcType=INTEGER},
+      </if>
+        time = now()
+    </set>
+    where movieid = #{movieId,jdbcType=VARCHAR}
+  </update>
+</mapper>

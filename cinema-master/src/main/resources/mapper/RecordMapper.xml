@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zrkworld.cinema.mapper.RecordMapper" >
+  <resultMap id="BaseResultMap" type="com.zrkworld.cinema.pojo.Record" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="cardid" property="cardId" jdbcType="VARCHAR" />
+    <result column="value" property="value" jdbcType="INTEGER" />
+    <result column="time" property="time" jdbcType="TIMESTAMP" />
+    <result column="spendtype" property="spendType" jdbcType="INTEGER" />
+  </resultMap>
+
+  <select id="selectMovieCount" resultType="LONG">
+    select
+    count(*)
+    from record
+    where value &lt; 0 and spendtype=0
+  </select>
+
+  <delete id="deleteRecordByCardId" parameterType="String">
+    delete from record
+    where cardid=#{cardId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insertRecord" parameterType="com.zrkworld.cinema.pojo.Record">
+    insert into record (cardid, value,
+      time, spendtype)
+    values ( #{cardId,jdbcType=VARCHAR}, #{value,jdbcType=INTEGER},
+      now(), #{spendType,jdbcType=INTEGER})
+
+  </insert>
+
+  <select id="selectRecordByMemberId" parameterType="String" resultType="com.zrkworld.cinema.pojo.Record">
+    SELECT cardid,value,DATE_FORMAT(time,'%Y-%m-%d %T') as time,spendtype FROM record
+    WHERE cardid IN
+    (SELECT cardid FROM card WHERE memberid=#{memberId})
+    order by time desc
+  </select>
+
+  <select id="selectConsumeCount" resultType="LONG">
+    select
+    sum(value)
+    from record
+    where spendtype=0 and value &lt; 0
+  </select>
+
+  <select id="selectIntegralExchangeCount" resultType="LONG">
+    select
+    sum(value)
+    from record
+    where spendtype=1 and value &lt; 0
+  </select>
+
+  <select id="selectRechargeCount" resultType="LONG">
+    select
+    sum(value)
+    from record
+    where spendtype=0 and value &gt; 0
+  </select>
+
+  <select id="selectConsumeCountByDate" parameterType="String" resultType="INTEGER">
+    select
+    sum(value)
+    from record
+    where spendtype=0 and value &lt; 0 and time between #{startDate} and #{endDate}
+  </select>
+
+  <select id="selectrechargeCountByDate" parameterType="String"  resultType="INTEGER">
+    select
+    sum(value)
+    from record
+    where spendtype=0 and value &gt; 0 and time between #{startDate} and #{endDate}
+  </select>
+
+  <select id="selectintegralCountByDate" parameterType="String"  resultType="INTEGER">
+    select
+    sum(value)
+    from record
+    where spendtype=1 and value &lt; 0 and time between #{startDate} and #{endDate}
+  </select>
+</mapper>
